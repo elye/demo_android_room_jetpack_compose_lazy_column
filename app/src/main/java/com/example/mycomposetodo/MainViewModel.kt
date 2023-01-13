@@ -1,40 +1,22 @@
 package com.example.mycomposetodo
 
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlin.random.Random
 
-class MainViewModel : ViewModel() {
-    private var todoList = mutableStateListOf(
-        TodoItem(0, "My First Task"),
-        TodoItem(1, "My Second Task", true),
-        TodoItem(2, "My Third Task"),
-        TodoItem(3, "My Forth Task"),
-        TodoItem(4, "My Fifth Task"),
-        TodoItem(5, "My Sixth Task"),
-        TodoItem(6, "My Seventh Task"),
-        TodoItem(7, "My Eighth Task"),
-        TodoItem(8, "My Ninth Task"),
-        TodoItem(9, "My Tenth Task"),
-        TodoItem(10, "My Eleventh Task"),
-        TodoItem(11, "My Twelfth Task"),
-        TodoItem(12, "My Thirteen Task"),
-        TodoItem(13, "My Fourteen Task"),
-        TodoItem(14, "My Fifteen Task"),
-        TodoItem(15, "My Sixteen Task"),
-        TodoItem(16, "My Seventeenth Task"),
-        TodoItem(17, "My Eighteenth Task"),
-        TodoItem(18, "My Nineteenth Task"),
-        TodoItem(19, "My Twentieth Task"),
-    )
+class MainViewModel(private val todoDao: TodoDao) : ViewModel() {
+    private var todoList = todoDao.getAll().toMutableStateList()
+
     private val _todoListFlow = MutableStateFlow(todoList)
 
     val todoListFlow: StateFlow<List<TodoItem>> get() = _todoListFlow
 
     fun setUrgent(index: Int, value: Boolean) {
         todoList[index] = todoList[index].copy(urgent = value)
+        todoDao.update(todoList[index])
     }
 
     fun generateRandomTodo() {
@@ -46,6 +28,10 @@ class MainViewModel : ViewModel() {
         }
         todoList = mutableTodoList
         _todoListFlow.value = mutableTodoList
+
+        todoDao.nukeTable()
+        todoDao.insertAll(*mutableTodoList.toList().toTypedArray())
+
     }
 
     private fun randomWord(): String {
@@ -58,11 +44,16 @@ class MainViewModel : ViewModel() {
     }
 
     fun addRecord(titleText: String, urgency: Boolean) {
-        todoList.add(TodoItem(todoList.last().id + 1, titleText, urgency))
+        val id = todoList.lastOrNull()?.id ?: -1
+        val todoItem = TodoItem(id + 1, titleText, urgency)
+        todoList.add(todoItem)
+        todoDao.insertAll(todoItem)
     }
 
     fun removeRecord(todoItem: TodoItem) {
         val index = todoList.indexOf(todoItem)
-        todoList.remove(todoList[index])
+        val todoItem = todoList[index]
+        todoList.remove(todoItem)
+        todoDao.delete(todoItem)
     }
 }

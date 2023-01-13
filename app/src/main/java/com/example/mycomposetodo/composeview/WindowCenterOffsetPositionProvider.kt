@@ -1,4 +1,4 @@
-package com.example.mycomposetodo
+package com.example.mycomposetodo.composeview
 
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
