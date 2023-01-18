@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 class MainViewModel(private val todoDao: TodoDao) : ViewModel() {
-    private var todoList = mutableStateListOf<TodoItem>()//todoDao.getAll().toMutableStateList()
+    private var todoList = mutableStateListOf<TodoItem>()
 
     private val _todoListFlow = MutableStateFlow(todoList)
 
