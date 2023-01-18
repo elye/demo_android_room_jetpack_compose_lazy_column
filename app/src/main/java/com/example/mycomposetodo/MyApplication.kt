@@ -8,6 +8,6 @@ class MyApplication: Application() {
         Room.databaseBuilder(
             applicationContext,
             AppDatabase::class.java, "todo-database"
-        ).allowMainThreadQueries().build()
+        ).build()
     }
 }
