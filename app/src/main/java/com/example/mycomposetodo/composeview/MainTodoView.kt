@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun MainTodoView(viewModel: MainViewModel) {
-    val todoListState = viewModel.todoListFlow.collectAsState()
+    val todoListState = viewModel.todoListFlow.collectAsState(listOf())
     val lazyListState = rememberLazyListState()
     val scope = rememberCoroutineScope()
 

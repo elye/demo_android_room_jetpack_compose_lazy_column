@@ -5,17 +5,13 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 class MainViewModel(private val todoDao: TodoDao) : ViewModel() {
     private var todoList = mutableStateListOf<TodoItem>()
 
-    private val _todoListFlow = MutableStateFlow(todoList)
-
-    val todoListFlow: StateFlow<List<TodoItem>> get() = _todoListFlow
+    val todoListFlow = todoDao.getAll()
 
     init {
         loadTodoList()
@@ -25,7 +21,6 @@ class MainViewModel(private val todoDao: TodoDao) : ViewModel() {
         viewModelScope.launch {
             todoDao.getAll().collect {
                 todoList = it.toMutableStateList()
-                _todoListFlow.value = todoList
             }
         }
     }
@@ -44,8 +39,6 @@ class MainViewModel(private val todoDao: TodoDao) : ViewModel() {
             val todoItem = TodoItem(it, "Item $it: ${randomWord()}", Random.nextBoolean())
             mutableTodoList.add(todoItem)
         }
-        todoList = mutableTodoList
-        _todoListFlow.value = mutableTodoList
 
         viewModelScope.launch(Dispatchers.IO) {
             todoDao.nukeTable()
@@ -65,16 +58,12 @@ class MainViewModel(private val todoDao: TodoDao) : ViewModel() {
     fun addRecord(titleText: String, urgency: Boolean) {
         val id = todoList.lastOrNull()?.id ?: -1
         val todoItem = TodoItem(id + 1, titleText, urgency)
-        todoList.add(todoItem)
         viewModelScope.launch(Dispatchers.IO) {
             todoDao.insertAll(todoItem)
         }
     }
 
     fun removeRecord(todoItem: TodoItem) {
-        val index = todoList.indexOf(todoItem)
-        val todoItem = todoList[index]
-        todoList.remove(todoItem)
         viewModelScope.launch(Dispatchers.IO) {
             todoDao.delete(todoItem)
         }
