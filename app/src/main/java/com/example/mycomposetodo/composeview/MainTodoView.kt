@@ -28,9 +28,10 @@ fun MainTodoView(viewModel: MainViewModel) {
         var popupControl by remember { mutableStateOf(false) }
 
         Button(onClick = {
-            viewModel.generateRandomTodo()
-            scope.launch {
-                lazyListState.scrollToItem(0)
+            viewModel.generateRandomTodo {
+                scope.launch {
+                    lazyListState.scrollToItem(0)
+                }
             }
         }) {
             Text("Randomly Generate Todo")

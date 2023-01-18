@@ -43,8 +43,9 @@ fun AddRecord(closeRecord: () -> Unit, viewModel: MainViewModel) {
             Spacer(modifier = Modifier.height(32.dp))
             TextButton(onClick = {
                 if (titleText != "") {
-                    viewModel.addRecord(titleText, checkBoxStatus)
-                    closeRecord.invoke()
+                    viewModel.addRecord(titleText, checkBoxStatus){
+                        closeRecord.invoke()
+                    }
                 }
             }) {
                 Text(text = "Submit Record")
