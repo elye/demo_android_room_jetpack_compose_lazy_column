@@ -14,19 +14,19 @@ data class TodoItem(
 interface TodoDao {
 
     @Query("SELECT * FROM TodoItem")
-    suspend fun getAll(): Flow<List<TodoItem>>
+    fun getAll(): Flow<List<TodoItem>>
 
     @Insert
-    suspend fun insertAll(vararg todos: TodoItem)
+    fun insertAll(vararg todos: TodoItem)
 
     @Delete
-    suspend fun delete(todo: TodoItem)
+    fun delete(todo: TodoItem)
 
     @Update
-    suspend fun update(note: TodoItem)
+    fun update(note: TodoItem)
 
     @Query("DELETE FROM TodoItem")
-    suspend fun nukeTable()
+    fun nukeTable()
 }
 
 @Database(entities = [TodoItem::class], version = 1)
