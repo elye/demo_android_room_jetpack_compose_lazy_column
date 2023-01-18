@@ -9,7 +9,7 @@ import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 class MainViewModel(private val todoDao: TodoDao) : ViewModel() {
-    private var todoList = mutableStateListOf<TodoItem>()
+    private var todoList = listOf<TodoItem>()
 
     val todoListFlow = todoDao.getAll()
 
@@ -26,9 +26,9 @@ class MainViewModel(private val todoDao: TodoDao) : ViewModel() {
     }
 
     fun setUrgent(index: Int, value: Boolean) {
-        todoList[index] = todoList[index].copy(urgent = value)
+        val editedTodo = todoList[index].copy(urgent = value)
         viewModelScope.launch(Dispatchers.IO) {
-            todoDao.update(todoList[index])
+            todoDao.update(editedTodo)
         }
     }
 
