@@ -15,6 +15,7 @@ class MainViewModel(private val todoDao: TodoDao) : ViewModel() {
     private val _todoListFlow = MutableStateFlow(todoList)
 
     val todoListFlow: StateFlow<List<TodoItem>> get() = _todoListFlow
+    private var postExecute: (() -> Unit)? = null
 
     init {
         loadTodoList()
@@ -25,6 +26,7 @@ class MainViewModel(private val todoDao: TodoDao) : ViewModel() {
             todoDao.getAll().collect {
                 todoList = it.toMutableStateList()
                 _todoListFlow.value = todoList
+                postExecute?.invoke()
             }
         }
     }
@@ -33,6 +35,7 @@ class MainViewModel(private val todoDao: TodoDao) : ViewModel() {
         val editedTodo = todoList[index].copy(urgent = value)
         viewModelScope.launch(Dispatchers.IO) {
             todoDao.update(editedTodo)
+            postExecute = null
         }
     }
 
@@ -47,7 +50,7 @@ class MainViewModel(private val todoDao: TodoDao) : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             todoDao.nukeTable()
             todoDao.insertAll(*mutableTodoList.toList().toTypedArray())
-            postGenerate?.invoke()
+            postExecute = postGenerate
         }
     }
 
@@ -65,14 +68,14 @@ class MainViewModel(private val todoDao: TodoDao) : ViewModel() {
         val todoItem = TodoItem(id + 1, titleText, urgency)
         viewModelScope.launch(Dispatchers.IO) {
             todoDao.insertAll(todoItem)
-            postInsert?.invoke()
+            postExecute = postInsert
         }
     }
 
     fun removeRecord(todoItem: TodoItem, postRemove: (() -> Unit)? = null) {
         viewModelScope.launch(Dispatchers.IO) {
             todoDao.delete(todoItem)
-            postRemove?.invoke()
+            postExecute = postRemove
         }
     }
 }
