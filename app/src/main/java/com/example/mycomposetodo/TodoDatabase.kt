@@ -17,7 +17,7 @@ interface TodoDao {
     fun getAll(): Flow<List<TodoItem>>
 
     @Insert
-    suspend fun insertAll(vararg todos: TodoItem)
+    fun insertAll(vararg todos: TodoItem)
 
     @Delete
     fun delete(todo: TodoItem)
